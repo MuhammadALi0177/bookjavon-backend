@@ -50,6 +50,11 @@ STORAGES = {
     },
 }
 
+# Whitenoise — media fayllarni ham xizmat qilish
+if not DEBUG:
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_ROOT = STATIC_ROOT
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
