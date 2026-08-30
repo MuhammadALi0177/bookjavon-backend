@@ -13,7 +13,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-change-in-produ
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'bookjavon-backend.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -105,6 +105,7 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://bookjavon-frontend.vercel.app',
 ]
 if not DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
