@@ -96,7 +96,7 @@ class BookDetailSerializer(serializers.ModelSerializer):
     district_name = serializers.CharField(source='district.name', read_only=True, default='')
     category_name = serializers.CharField(source='category.name', read_only=True, default='')
     category_icon = serializers.CharField(source='category.icon', read_only=True, default='')
-    images = BookImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     condition_display = serializers.CharField(source='get_condition_display', read_only=True)
     is_favorited = serializers.SerializerMethodField()
