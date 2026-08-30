@@ -366,6 +366,12 @@ def login_view(request):
 
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
+def ping_view(request):
+    return Response({'status': 'ok', 'message': 'BookJavon is alive!'})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
 def stats_view(request):
     """Platforma statistikasi"""
     return Response({

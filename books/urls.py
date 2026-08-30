@@ -18,4 +18,5 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('stats/', views.stats_view, name='stats'),
+    path('ping/', views.ping_view, name='ping'),
 ]
