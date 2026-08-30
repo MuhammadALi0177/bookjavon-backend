@@ -152,9 +152,9 @@ class Book(models.Model):
 
 
 class BookImage(models.Model):
-    """Kitob rasmlari"""
+    """Kitob rasmlari (base64)"""
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='books/', verbose_name="Rasm")
+    image = models.TextField(verbose_name="Rasm (base64)")
     is_primary = models.BooleanField(default=False, verbose_name="Asosiy rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
 

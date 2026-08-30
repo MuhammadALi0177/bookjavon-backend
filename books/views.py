@@ -98,9 +98,9 @@ class BookViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    @action(detail=True, methods=['post'])
     def upload_image(self, request, pk=None):
-        """Kitobga rasm yuklash"""
+        """Kitobga rasm yuklash (base64)"""
         try:
             book = self.get_object()
             if book.owner != request.user:
@@ -108,19 +108,18 @@ class BookViewSet(viewsets.ModelViewSet):
                     {'error': 'Faqat o\'z kitobingizga rasm yuklashingiz mumkin'},
                     status=status.HTTP_403_FORBIDDEN
                 )
-            image = request.FILES.get('image')
-            if not image:
+
+            image_data = request.data.get('image', '')
+            if not image_data:
                 return Response({'error': 'Rasm yuklanmadi'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Media papkasini yaratish
-            import os
-            from django.conf import settings
-            os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
-            os.makedirs(os.path.join(settings.MEDIA_ROOT, 'books'), exist_ok=True)
+            # base64 tozalash
+            if ',' in image_data:
+                image_data = image_data.split(',', 1)[1]
 
             is_primary = book.images.count() == 0
             book_image = BookImage.objects.create(
-                book=book, image=image, is_primary=is_primary
+                book=book, image=image_data, is_primary=is_primary
             )
             return Response(
                 BookImageSerializer(book_image, context={'request': request}).data,

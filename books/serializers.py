@@ -44,19 +44,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BookImageSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
-
     class Meta:
         model = BookImage
         fields = ['id', 'image', 'is_primary', 'order']
-
-    def get_image(self, obj):
-        if obj.image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
-        return None
+        read_only_fields = ['id']
 
 
 class BookListSerializer(serializers.ModelSerializer):
@@ -85,8 +76,11 @@ class BookListSerializer(serializers.ModelSerializer):
 
     def get_primary_image(self, obj):
         img = obj.images.filter(is_primary=True).first() or obj.images.first()
-        if img and self.context.get('request'):
-            return self.context['request'].build_absolute_uri(img.image.url)
+        if img and img.image:
+            # base64 rasm
+            if img.image.startswith('data:'):
+                return img.image
+            return f'data:image/jpeg;base64,{img.image}'
         return None
 
     def get_is_favorited(self, obj):
