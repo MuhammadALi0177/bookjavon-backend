@@ -77,7 +77,6 @@ class BookListSerializer(serializers.ModelSerializer):
     def get_primary_image(self, obj):
         img = obj.images.filter(is_primary=True).first() or obj.images.first()
         if img and img.image:
-            # base64 rasm
             if img.image.startswith('data:'):
                 return img.image
             return f'data:image/jpeg;base64,{img.image}'
@@ -104,9 +103,14 @@ class BookDetailSerializer(serializers.ModelSerializer):
     favorites_count = serializers.SerializerMethodField()
 
     def get_images(self, obj):
-        request = self.context.get('request')
         images = obj.images.all()
-        return BookImageSerializer(images, many=True, context={'request': request}).data
+        result = []
+        for img in images:
+            data = BookImageSerializer(img).data
+            if data.get('image') and not data['image'].startswith('data:'):
+                data['image'] = f'data:image/jpeg;base64,{data["image"]}'
+            result.append(data)
+        return result
 
     class Meta:
         model = Book
