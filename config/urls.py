@@ -8,5 +8,5 @@ urlpatterns = [
     path('api/', include('books.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Media fayllarni xizmat qilish (DEBUG va production ham)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

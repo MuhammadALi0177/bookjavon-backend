@@ -44,9 +44,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BookImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = BookImage
         fields = ['id', 'image', 'is_primary', 'order']
+
+    def get_image(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
 
 
 class BookListSerializer(serializers.ModelSerializer):
@@ -98,6 +108,11 @@ class BookDetailSerializer(serializers.ModelSerializer):
     condition_display = serializers.CharField(source='get_condition_display', read_only=True)
     is_favorited = serializers.SerializerMethodField()
     favorites_count = serializers.SerializerMethodField()
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = obj.images.all()
+        return BookImageSerializer(images, many=True, context={'request': request}).data
 
     class Meta:
         model = Book
