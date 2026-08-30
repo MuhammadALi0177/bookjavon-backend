@@ -98,27 +98,39 @@ class BookViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_image(self, request, pk=None):
         """Kitobga rasm yuklash"""
-        book = self.get_object()
-        if book.owner != request.user:
-            return Response(
-                {'error': 'Faqat o\'z kitobingizga rasm yuklashingiz mumkin'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        image = request.FILES.get('image')
-        if not image:
-            return Response({'error': 'Rasm yuklanmadi'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            book = self.get_object()
+            if book.owner != request.user:
+                return Response(
+                    {'error': 'Faqat o\'z kitobingizga rasm yuklashingiz mumkin'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            image = request.FILES.get('image')
+            if not image:
+                return Response({'error': 'Rasm yuklanmadi'}, status=status.HTTP_400_BAD_REQUEST)
 
-        is_primary = book.images.count() == 0
-        book_image = BookImage.objects.create(
-            book=book, image=image, is_primary=is_primary
-        )
-        return Response(
-            BookImageSerializer(book_image).data,
-            status=status.HTTP_201_CREATED
-        )
+            # Media papkasini yaratish
+            import os
+            from django.conf import settings
+            os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+            os.makedirs(os.path.join(settings.MEDIA_ROOT, 'books'), exist_ok=True)
+
+            is_primary = book.images.count() == 0
+            book_image = BookImage.objects.create(
+                book=book, image=image, is_primary=is_primary
+            )
+            return Response(
+                BookImageSerializer(book_image, context={'request': request}).data,
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            return Response(
+                {'error': f'Rasm yuklashda xatolik: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @action(detail=True, methods=['post'])
     def toggle_favorite(self, request, pk=None):
