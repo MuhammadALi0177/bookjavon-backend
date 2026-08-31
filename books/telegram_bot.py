@@ -38,8 +38,7 @@ def handle_message(message):
 
     if text == '/start':
         reply_markup = {
-            "keyboard": [[{"text": "BookZone ochish", "web_app": {"url": MINI_APP_URL}}]],
-            "resize_keyboard": True
+            "inline_keyboard": [[{"text": "BookZone ochish", "web_app": {"url": MINI_APP_URL}}]]
         }
         response = (
             f"Assalomu alaykum, {first_name}!\n\n"
