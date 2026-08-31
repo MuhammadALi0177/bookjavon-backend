@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 logger = logging.getLogger(__name__)
 
 BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-MINI_APP_URL = os.environ.get('TELEGRAM_MINI_APP_URL', 'https://kitob-javon.vercel.app')
+MINI_APP_URL = os.environ.get('TELEGRAM_MINI_APP_URL', 'https://bookjavon-backend.onrender.com')
 
 
 def send_message(chat_id, text, reply_markup=None):
