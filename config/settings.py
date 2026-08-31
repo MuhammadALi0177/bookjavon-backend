@@ -114,6 +114,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:3000',
     'https://bookjavon-frontend.vercel.app',
+    'https://kitob-javon.vercel.app',
 ]
 if not DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
