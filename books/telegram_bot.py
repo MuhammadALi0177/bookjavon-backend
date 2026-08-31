@@ -76,14 +76,17 @@ def telegram_webhook(request):
 
 @csrf_exempt
 def set_webhook(request):
-    """Webhook'ni o'rnatish — faqat GET"""
-    import requests
+    """Webhook'ni o'rnatish"""
+    import urllib.request
+    import urllib.parse
+    import json
     if not BOT_TOKEN:
         return JsonResponse({'error': 'No token'}, status=500)
 
-    webhook_url = f"https://bookjavon-backend.onrender.com/api/telegram/webhook/"
-    resp = requests.get(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook",
-        params={"url": webhook_url}
-    )
-    return JsonResponse(resp.json())
+    webhook_url = "https://bookjavon-backend.onrender.com/api/telegram/webhook/"
+    api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
+    params = urllib.parse.urlencode({'url': webhook_url})
+    req = urllib.request.Request(f"{api_url}?{params}")
+    resp = urllib.request.urlopen(req)
+    data = json.loads(resp.read())
+    return JsonResponse(data)
