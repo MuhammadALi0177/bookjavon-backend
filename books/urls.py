@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from . import telegram_bot
 
 router = DefaultRouter()
 router.register(r'books', views.BookViewSet, basename='book')
@@ -19,4 +20,6 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('stats/', views.stats_view, name='stats'),
     path('ping/', views.ping_view, name='ping'),
+    path('telegram/webhook/', telegram_bot.telegram_webhook, name='telegram-webhook'),
+    path('telegram/set-webhook/', telegram_bot.set_webhook, name='set-webhook'),
 ]
