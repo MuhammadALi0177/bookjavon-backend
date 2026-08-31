@@ -373,28 +373,34 @@ def ping_view(request):
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def setup_admin(request):
-    """Birinchi marta admin yaratish — faqat 1 marta ishlaydi"""
+    """Admin yaratish yoki parolni yangilash"""
     from django.contrib.auth.hashers import make_password
-
-    if User.objects.filter(is_staff=True).exists():
-        return Response({'error': 'Admin allaqachon yaratilgan'}, status=status.HTTP_400_BAD_REQUEST)
 
     username = request.data.get('username', 'admin')
     password = request.data.get('password', 'admin12345')
 
-    user = User.objects.create(
+    user, created = User.objects.get_or_create(
         username=username,
-        password=make_password(password),
-        full_name='Admin',
-        is_staff=True,
-        is_superuser=True,
-        is_active=True,
+        defaults={
+            'password': make_password(password),
+            'full_name': 'Admin',
+            'is_staff': True,
+            'is_superuser': True,
+            'is_active': True,
+        }
     )
+    if not created:
+        user.password = make_password(password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+
     return Response({
-        'message': 'Admin yaratildi!',
+        'message': 'Admin tayyor!',
         'username': username,
+        'password': password,
         'login_url': 'https://bookjavon-backend.onrender.com/admin/'
-    }, status=status.HTTP_201_CREATED)
+    }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
 
 @api_view(['GET'])
