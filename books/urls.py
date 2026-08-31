@@ -18,6 +18,7 @@ urlpatterns = [
     path('init/', views.webapp_init, name='webapp-init'),
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
+    path('setup-admin/', views.setup_admin, name='setup-admin'),
     path('stats/', views.stats_view, name='stats'),
     path('ping/', views.ping_view, name='ping'),
     path('telegram/webhook/', telegram_bot.telegram_webhook, name='telegram-webhook'),

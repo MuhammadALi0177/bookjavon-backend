@@ -370,6 +370,33 @@ def ping_view(request):
     return Response({'status': 'ok', 'message': 'BookJavon is alive!'})
 
 
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def setup_admin(request):
+    """Birinchi marta admin yaratish — faqat 1 marta ishlaydi"""
+    from django.contrib.auth.hashers import make_password
+
+    if User.objects.filter(is_staff=True).exists():
+        return Response({'error': 'Admin allaqachon yaratilgan'}, status=status.HTTP_400_BAD_REQUEST)
+
+    username = request.data.get('username', 'admin')
+    password = request.data.get('password', 'admin12345')
+
+    user = User.objects.create(
+        username=username,
+        password=make_password(password),
+        full_name='Admin',
+        is_staff=True,
+        is_superuser=True,
+        is_active=True,
+    )
+    return Response({
+        'message': 'Admin yaratildi!',
+        'username': username,
+        'login_url': 'https://bookjavon-backend.onrender.com/admin/'
+    }, status=status.HTTP_201_CREATED)
+
+
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def stats_view(request):
