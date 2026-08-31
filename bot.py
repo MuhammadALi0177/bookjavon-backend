@@ -12,7 +12,7 @@ from telegram import Update, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-MINI_APP_URL = os.environ.get('TELEGRAM_MINI_APP_URL', 'https://bookjavon-frontend.vercel.app')
+MINI_APP_URL = os.environ.get('TELEGRAM_MINI_APP_URL', 'https://kitob-javon.vercel.app')
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
