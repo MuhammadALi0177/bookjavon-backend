@@ -3,12 +3,10 @@ import logging
 import threading
 from django.apps import AppConfig
 
-logger = logging.getLogger(__name__)
-
-
-def start_telegram_bot():
+logger = logging.getLogger(__name__)def start_telegram_bot():
     """Background thread'da Telegram bot'ni ishga tushiradi"""
     try:
+        import asyncio
         from telegram import Update, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
         from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -41,14 +39,22 @@ def start_telegram_bot():
             )
             await update.message.reply_text(text)
 
-        logger.info(f'Telegram bot ishga tushmoqda... Mini App: {MINI_APP_URL}')
-        app = Application.builder().token(BOT_TOKEN).build()
-        app.add_handler(CommandHandler("start", start))
-        app.add_handler(CommandHandler("help", help_command))
-        app.run_polling(
-            allowed_updates=Update.ALL_TYPES,
-            drop_pending_updates=True
-        )
+        async def run_bot():
+            logger.info(f'Telegram bot ishga tushmoqda... Mini App: {MINI_APP_URL}')
+            app = Application.builder().token(BOT_TOKEN).build()
+            app.add_handler(CommandHandler("start", start))
+            app.add_handler(CommandHandler("help", help_command))
+            await app.initialize()
+            await app.start()
+            await app.updater.start_polling(drop_pending_updates=True)
+            logger.info('Telegram bot polling boshlandi!')
+            # Bot ishlashda davom etsin
+            await asyncio.Event().wait()
+
+        # Alohida event loop yaratish
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(run_bot())
     except Exception as e:
         logger.error(f'Telegram bot xatosi: {e}')
 
