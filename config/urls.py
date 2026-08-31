@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.views.static import serve as static_serve
@@ -21,7 +20,6 @@ def frontend_serve(request, path=''):
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('api/', include('books.urls')),
 ]
 
@@ -38,5 +36,5 @@ urlpatterns += [
 
 # SPA catch-all — oxirida turishi shart
 urlpatterns += [
-    re_path(r'^(?!api/|admin/|media/|assets/).*$', frontend_serve),
+    re_path(r'^(?!api/|media/|assets/).*$', frontend_serve),
 ]
