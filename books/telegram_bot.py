@@ -13,37 +13,55 @@ from django.views.decorators.http import require_POST
 
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 MINI_APP_URL = 'https://bookjavon-app.onrender.com'
+
+
+def get_bot_token():
+    """Token har safar so'rov vaqtida o'qiladi — module import emas"""
+    return os.environ.get('TELEGRAM_BOT_TOKEN', '')
 
 
 def send_message(chat_id, text, reply_markup=None):
     """Telegram API orqali xabar yuborish"""
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    token = get_bot_token()
+    if not token:
+        logger.error('TELEGRAM_BOT_TOKEN topilmadi!')
+        return
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {"chat_id": chat_id, "text": text}
     if reply_markup:
         payload["reply_markup"] = json.dumps(reply_markup)
 
     data = urllib.parse.urlencode(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data)
-    urllib.request.urlopen(req)
+    try:
+        urllib.request.urlopen(req, timeout=10)
+    except Exception as e:
+        logger.error(f'Telegram xabar yuborishda xato: {e}')
 
 
 def handle_message(message):
     """Xabarni qayta ishlash"""
     text = message.get('text', '')
-    user = message.get('from_user', {})
-    chat_id = message.get('chat', {}).get('id')
+    # Telegram "from" jo'natadi, "from_user" emas!
+    user = message.get('from', {})
+    chat = message.get('chat', {})
+    chat_id = chat.get('id')
     first_name = user.get('first_name', 'Foydalanuvchi')
+
+    if not chat_id:
+        return
 
     if text == '/start':
         reply_markup = {
-            "keyboard": [[{"text": "BookZone ochish", "web_app": {"url": MINI_APP_URL}}]],
-            "resize_keyboard": True
+            "inline_keyboard": [[
+                {"text": "📚 BookZone ochish", "web_app": {"url": MINI_APP_URL}}
+            ]]
         }
         response = (
-            f"Assalomu alaykum, {first_name}!\n\n"
-            f"BookZone ga xush kelibsiz!\n\n"
+            f"Assalomu alaykum, {first_name}! 👋\n\n"
+            f"📚 BookZone ga xush kelibsiz!\n\n"
             f"O'zbekistondagi kitob almashish platformasi.\n\n"
             f"Kitoblaringizni soting, ijaraga bering yoki almashtiring!\n\n"
             f"Quyidagi tugmani bosib ilovani oching:"
@@ -52,7 +70,7 @@ def handle_message(message):
 
     elif text == '/help':
         response = (
-            "BookZone Yordam\n\n"
+            "📚 BookZone Yordam\n\n"
             "Buyruqlar:\n"
             "/start - Boshlash\n"
             "/help - Yordam"
@@ -60,7 +78,7 @@ def handle_message(message):
         send_message(chat_id, response)
 
     else:
-        response = "Buyruqlar: /start yoki /help"
+        response = "📚 Buyruqlar: /start yoki /help"
         send_message(chat_id, response)
 
 
@@ -68,9 +86,6 @@ def handle_message(message):
 @require_POST
 def telegram_webhook(request):
     """Telegram webhook endpoint"""
-    if not BOT_TOKEN:
-        return JsonResponse({'error': 'Bot not configured'}, status=500)
-
     try:
         data = json.loads(request.body)
 
@@ -86,13 +101,14 @@ def telegram_webhook(request):
 @csrf_exempt
 def set_webhook(request):
     """Webhook'ni o'rnatish"""
-    if not BOT_TOKEN:
+    token = get_bot_token()
+    if not token:
         return JsonResponse({'error': 'No token'}, status=500)
 
-    webhook_url = 'https://bookjavon-app.onrender.com/api/telegram/webhook/'
-    api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
+    webhook_url = f'{MINI_APP_URL}/api/telegram/webhook/'
+    api_url = f"https://api.telegram.org/bot{token}/setWebhook"
     params = urllib.parse.urlencode({'url': webhook_url})
     req = urllib.request.Request(f"{api_url}?{params}")
-    resp = urllib.request.urlopen(req)
+    resp = urllib.request.urlopen(req, timeout=10)
     data = json.loads(resp.read())
     return JsonResponse(data)

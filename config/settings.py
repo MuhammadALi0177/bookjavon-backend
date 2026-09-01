@@ -13,7 +13,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-change-in-produ
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['*', 'bookjavon-backend.onrender.com']
+ALLOWED_HOSTS = ['*', 'bookjavon-backend.onrender.com', 'bookjavon-app.onrender.com', 'bookjavon-api.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
