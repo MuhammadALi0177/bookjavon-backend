@@ -241,6 +241,23 @@ class ChatRoomViewSet(viewsets.ModelViewSet):
             message = Message.objects.create(
                 room=room, sender=request.user, text=text
             )
+
+            # Telegram bildirishnoma — qabul qiluvchiga xabar yuborish
+            try:
+                recipient = room.user2 if room.user1 == request.user else room.user1
+                if recipient.telegram_id:
+                    from .telegram_bot import send_message
+                    sender_name = request.user.full_name or request.user.username
+                    send_message(
+                        recipient.telegram_id,
+                        f"Salom {recipient.full_name or 'Foydalanuvchi'}!\n\n"
+                        f"{sender_name} sizga xabar yubordi:\n\n"
+                        f"\"{text[:100]}\"\n\n"
+                        f"Suhbatni davom ettirish uchun BookZone ni oching."
+                    )
+            except Exception:
+                pass  # Xatolik bo'lsa ham xabar yuboriladi
+
             return Response(
                 MessageSerializer(message).data,
                 status=status.HTTP_201_CREATED
