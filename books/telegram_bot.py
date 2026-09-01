@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 logger = logging.getLogger(__name__)
 
 BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-MINI_APP_URL = os.environ.get('TELEGRAM_MINI_APP_URL', 'https://bookjavon-backend.onrender.com')
+MINI_APP_URL = os.environ.get('TELEGRAM_MINI_APP_URL', 'https://bookjavon-app.onrender.com')
 
 
 def send_message(chat_id, text, reply_markup=None):
@@ -89,7 +89,7 @@ def set_webhook(request):
     if not BOT_TOKEN:
         return JsonResponse({'error': 'No token'}, status=500)
 
-    webhook_url = "https://bookjavon-backend.onrender.com/api/telegram/webhook/"
+    webhook_url = f"{MINI_APP_URL}/api/telegram/webhook/"
     api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
     params = urllib.parse.urlencode({'url': webhook_url})
     req = urllib.request.Request(f"{api_url}?{params}")
